@@ -57,6 +57,7 @@ public class DefaultInfrastructureModule : Module
     builder.RegisterGeneric(typeof(EfRepository<>))
       .As(typeof(IRepository<>))
       .As(typeof(IReadRepository<>))
+      .WithProperty("UseUnitOfWork", true)
       .InstancePerLifetimeScope();
 
     builder

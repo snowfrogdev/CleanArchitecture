@@ -10,6 +10,7 @@ using FastEndpoints.Swagger.Swashbuckle;
 using FastEndpoints.ApiExplorer;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Clean.Architecture.SharedKernel.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,3 +105,25 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+
+public static class RepositoryExtensions
+{
+  public static IServiceCollection AddRepository(this IServiceCollection services, RepositoryConfig config)
+  {
+    services.AddScoped(typeof(EfRepository<>));
+    services.AddScoped(typeof(IRepository<>), (serviceProvider) =>
+    {      
+        var repository = (IConfigureUnitOfWork)serviceProvider.GetRequiredService(typeof(EfRepository<>));
+        repository.UseUnitOfWork = config.UseUnitOfWork;
+        return repository;      
+    });
+
+    return services;
+  }
+}
+
+public class RepositoryConfig
+{
+  public bool UseUnitOfWork { get; set; } = false;
+}
